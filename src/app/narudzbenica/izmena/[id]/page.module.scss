@@ -1,11 +1,21 @@
 .unos {
     width: 100vw;
-    height: 100vh;
+    height: fit-content;
+
+    margin: 40px 0px 40px 0px;
 
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+}
+
+.regularInputs {
+    width: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
 .form {
@@ -67,8 +77,50 @@
     }
 }
 
+.statuses {
+    width: 350px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+
+    margin-left: 50px;
+}
+
+.status {
+    display: flex;
+    flex-direction: column;
+
+    margin: 16px 0px 16px 0px;
+
+    p {
+        color: rgb(255, 255, 255, 1);
+        text-align: right;
+        font-family: "Roboto";
+        font-size: 20px;
+        font-style: normal;
+        font-weight: 400;
+
+        margin-bottom: 12px;
+    }
+
+    input {
+        height: 20px;
+
+        &:hover {
+            cursor: pointer;
+            filter: brightness(0.8);
+        }
+
+        &:active {
+            filter: brightness(0.95);
+        }
+    }
+}
+
 .formBody {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
 

@@ -5,16 +5,18 @@ import styles from "./page.module.scss";
 import {
     ArtikalDto,
     DobavljacDto,
+    InitialStavkeState,
     KatalogDto,
     KatalogOriginalDto,
     NarudbenicaFullDto,
+    Stanja,
     StavkaNarudzbeniceFullDto,
     ZaposlenDto,
 } from "@/app/dto";
 import { useEffect, useState } from "react";
-import { formatDate, getAllData, getData, postData } from "@/app/helpers";
+import { formatDate, getAllData, getData, putData } from "@/app/helpers";
 import { toast } from "sonner";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 export default function narudzbenicaIzmena({
     params,
@@ -26,44 +28,58 @@ export default function narudzbenicaIzmena({
     const [dobavljaci, setDobavljaci] = useState<DobavljacDto[]>([]);
     const [katalozi, setKatalozi] = useState<KatalogDto[]>([]);
     const [zaposleni, setZaposleni] = useState<ZaposlenDto[]>([]);
+    const [artikli, setArtikli] = useState<ArtikalDto[]>([]);
 
-    const [narudzbenica, setNarudzbenica] = useState<NarudbenicaFullDto>({
-        narudzbenicaID: 0,
-        sektor: "",
-        stanje: "",
-        katalog: { idKataloga: 0, datum: new Date() },
-        datum: new Date(),
-        dobavljac: {
-            naziv: "",
-            sifraDobavljaca: 0,
-            idAdresa: 0,
-        },
-        zaposleni: {
-            idZaposlenog: 0,
-            imeZaposlenog: "",
-            prezimeZaposlenog: "",
-        },
-        stavke: [],
+    const [dobavljac, setDobavljac] = useState<DobavljacDto>();
+    const [katalog, setKatalog] = useState<KatalogDto>();
+    const [zaposlen, setZaposlen] = useState<ZaposlenDto>();
+    const [IDNarudzbenice, setIDNarudzbenice] = useState<number>();
+    const [sektor, setSektor] = useState<string>("");
+    const [datum, setDatum] = useState<Date>(new Date());
+    const [stanje, setStanje] = useState<string>("");
+    const [stanja, setStanja] = useState<Stanja>({
+        kreirana: true,
+        poslata: false,
+        potpisana: false,
     });
 
-    const [artikli, setArtikli] = useState<ArtikalDto[]>([]);
-    const [artikalID, setArtikalID] = useState<number>(0);
+    const [selectedArtikal, setSelectedArtikal] = useState<ArtikalDto>();
+    const [kolicina, setKolicina] = useState("");
+    const [napomena, setNapomena] = useState<string>("");
+    const [stavke, setStavke] = useState<StavkaNarudzbeniceFullDto[]>([]);
 
     const [selectedStavka, setSelectedStavka] =
         useState<StavkaNarudzbeniceFullDto>();
+    const [initialStavkeState, setInitialStavkeState] =
+        useState<InitialStavkeState>();
 
     useEffect(() => {
         getData(
             `http://localhost:4000/narudzbenica/id/${params.id}`,
             "object"
-        ).then((result: NarudbenicaFullDto) => {
-            setNarudzbenica(result);
+        ).then((result: NarudbenicaFullDto[]) => {
+            setDobavljac(result[0].dobavljac);
+            setKatalog(result[0].katalog);
+            setZaposlen(result[0].zaposleni);
+            setIDNarudzbenice(result[0].narudzbenicaID);
+            setSektor(result[0].sektor);
+            setDatum(result[0].datum);
+            setStanje(result[0].stanje);
+            setStavke(result[0].stavke);
+            setInitialStavkeState({
+                katalogID: result[0].katalog.idKataloga,
+                stavke: result[0].stavke,
+            });
+            setStanja({
+                kreirana: true,
+                poslata: result[0].stanje === "poslata",
+                potpisana: result[0].stanje === "potpisana",
+            });
         });
 
         getAllData("http://localhost:4000/dobavljac", "array").then(
             (result: DobavljacDto[]) => {
                 setDobavljaci(result);
-                setNarudzbenica({ ...narudzbenica, dobavljac: result[0] });
             }
         );
 
@@ -78,30 +94,26 @@ export default function narudzbenicaIzmena({
             );
 
             setKatalozi(formatedResult);
-            setNarudzbenica({ ...narudzbenica, katalog: result[0] });
         });
 
         getAllData("http://localhost:4000/zaposlen", "array").then(
             (result: ZaposlenDto[]) => {
                 setZaposleni(result);
-                setNarudzbenica({ ...narudzbenica, zaposleni: result[0] });
             }
         );
     }, []);
 
     useEffect(() => {
-        if (artikalID === 0) return;
+        if (!katalog) return;
 
         getData(
-            `http://localhost:4000/artikal/${narudzbenica.katalog.idKataloga}`,
+            `http://localhost:4000/artikal/${katalog.idKataloga}`,
             "array"
         ).then((result) => {
             setArtikli(result);
-            setArtikalID(result[0]);
+            setSelectedArtikal(result[0]);
         });
-
-        setStavke([]);
-    }, [selectedKatalogID]);
+    }, [katalog]);
 
     const addStavku = () => {
         if (kolicina.length === 0) {
@@ -118,7 +130,7 @@ export default function narudzbenicaIzmena({
             artikal: selectedArtikal!,
             kolicina: +kolicina,
             napomena: napomena,
-            idNarudzbenice: +narudzbenicaID,
+            idNarudzbenice: IDNarudzbenice!,
             rbNarudzbenice: stavke.length + 1,
         };
 
@@ -147,12 +159,7 @@ export default function narudzbenicaIzmena({
         setStavke(filtered);
     };
 
-    const saveNarudzbenica = async () => {
-        if (narudzbenicaID.length === 0) {
-            toast.error("Molim Vas unesite ID narudžbenice!");
-            return;
-        }
-
+    const updateNarudzbenica = async () => {
         if (sektor.length === 0) {
             toast.error("Molima Vas unesite vrednost za sektor!");
             return;
@@ -163,41 +170,36 @@ export default function narudzbenicaIzmena({
             return;
         }
 
+        let newStanje: string = "";
+
+        if (stanja.kreirana) newStanje = "kreirana";
+        if (stanja.potpisana) newStanje = "potpisana";
+        if (stanja.poslata) newStanje = "poslata";
+
         const narudzbenica: NarudbenicaFullDto = {
-            narudzbenicaID: +narudzbenicaID,
-            datum: new Date(datum),
-            zaposleni: zaposleni.find(
-                (zaposleni) => zaposleni.idZaposlenog === selectedZaposleniID
-            )!,
-            dobavljac: dobavljaci.find(
-                (dobavljac) => dobavljac.sifraDobavljaca === selectedDobavljacID
-            )!,
-            katalog: katalozi.find(
-                (katalog) => katalog.idKataloga === selectedKatalogID
-            )!,
+            dobavljac: dobavljac!,
+            katalog: katalog!,
+            zaposleni: zaposlen!,
+            narudzbenicaID: IDNarudzbenice!,
             sektor: sektor,
-            stanje: "kreirana",
+            datum: datum,
+            stanje: newStanje,
             stavke: stavke,
         };
 
-        const response = await postData(
+        console.log(narudzbenica);
+
+        const response = await putData(
             "http://localhost:4000/narudzbenica",
             narudzbenica
         );
 
         if (response.status === 200) {
             toast.success("Narudžbenica je sačuvan!");
-            clearInputs();
+            router.push("/narudzbenica/pretraga");
         } else {
-            toast.error("Narudžbenica sa datim ID-jem već postoji!");
-            setNarudzbenicaID("");
+            toast.error("Došlo je do greške pri ažuriranju narudžbenice!");
         }
-    };
-
-    const clearInputs = () => {
-        setNarudzbenicaID("");
-        setSektor("");
-        setStavke([]);
     };
 
     return (
@@ -234,7 +236,6 @@ export default function narudzbenicaIzmena({
                                             artikal.sifraArtikla ===
                                             sifraArtikla
                                     )!;
-
                                     setSelectedStavka({
                                         ...selectedStavka!,
                                         artikal: artikal,
@@ -302,92 +303,163 @@ export default function narudzbenicaIzmena({
             <div className={styles.form}>
                 <div className={styles.formHeader}>
                     <p>Unos narudžbenice</p>
-                    <Link className={styles.link} href="/">
+                    <Link className={styles.link} href="/narudzbenica/pretraga">
                         X
                     </Link>
                 </div>
                 <div className={styles.formBody}>
-                    <div className={styles.leftInputs}>
-                        <div className={styles.inputContainer}>
-                            <p>Dobavljač:</p>
-                            <select
-                                className={styles.selectStyle}
-                                onChange={(e) => {
-                                    setSelectedDobavljacID(+e.target.value);
-                                }}
-                            >
-                                {dobavljaci.map((dobavljac: DobavljacDto) => (
-                                    <option value={dobavljac.sifraDobavljaca}>
-                                        {dobavljac.naziv}
-                                    </option>
-                                ))}
-                            </select>
+                    <div className={styles.regularInputs}>
+                        <div className={styles.leftInputs}>
+                            <div className={styles.inputContainer}>
+                                <p>Dobavljač:</p>
+                                <select
+                                    className={styles.selectStyle}
+                                    onChange={(e) => {
+                                        setDobavljac(
+                                            dobavljaci.find(
+                                                (dobavljac) =>
+                                                    (dobavljac.sifraDobavljaca =
+                                                        +e.target.value)
+                                            )!
+                                        );
+                                    }}
+                                >
+                                    {dobavljaci.map(
+                                        (dobavljac: DobavljacDto) => (
+                                            <option
+                                                value={
+                                                    dobavljac.sifraDobavljaca
+                                                }
+                                            >
+                                                {dobavljac.naziv}
+                                            </option>
+                                        )
+                                    )}
+                                </select>
+                            </div>
+                            <div className={styles.inputContainer}>
+                                <p>Katalog:</p>
+                                <select
+                                    className={styles.selectStyle}
+                                    onChange={(e) => {
+                                        setKatalog(
+                                            katalozi.find(
+                                                (katalog) =>
+                                                    katalog.idKataloga ===
+                                                    +e.target.value
+                                            )!
+                                        );
+
+                                        if (
+                                            +e.target.value ===
+                                            initialStavkeState!.katalogID
+                                        ) {
+                                            setStavke(
+                                                initialStavkeState!.stavke
+                                            );
+                                        } else {
+                                            setStavke([]);
+                                        }
+                                    }}
+                                >
+                                    {katalozi.map((katalog: KatalogDto) => (
+                                        <option value={katalog.idKataloga}>
+                                            {katalog.idKataloga}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className={styles.inputContainer}>
+                                <p>Zaposleni:</p>
+                                <select
+                                    className={styles.selectStyle}
+                                    onChange={(e) => {
+                                        setZaposlen(
+                                            zaposleni.find(
+                                                (zaposlen) =>
+                                                    (zaposlen.idZaposlenog =
+                                                        +e.target.value)
+                                            )!
+                                        );
+                                    }}
+                                >
+                                    {zaposleni.map((zaposlen: ZaposlenDto) => (
+                                        <option value={zaposlen.idZaposlenog}>
+                                            {`${zaposlen.imeZaposlenog} ${zaposlen.prezimeZaposlenog}`}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
                         </div>
-                        <div className={styles.inputContainer}>
-                            <p>Katalog:</p>
-                            <select
-                                className={styles.selectStyle}
-                                onChange={(e) => {
-                                    setSelectedKatalogID(+e.target.value);
-                                }}
-                            >
-                                {katalozi.map((katalog: KatalogDto) => (
-                                    <option value={katalog.idKataloga}>
-                                        {katalog.idKataloga}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                        <div className={styles.inputContainer}>
-                            <p>Zaposleni:</p>
-                            <select
-                                className={styles.selectStyle}
-                                onChange={(e) => {
-                                    setSelectedZaposleniID(+e.target.value);
-                                }}
-                            >
-                                {zaposleni.map((zaposlen: ZaposlenDto) => (
-                                    <option value={zaposlen.idZaposlenog}>
-                                        {`${zaposlen.imeZaposlenog} ${zaposlen.prezimeZaposlenog}`}
-                                    </option>
-                                ))}
-                            </select>
+                        <div className={styles.rightInputs}>
+                            <div className={styles.inputContainer}>
+                                <p>ID narudžbenice:</p>
+                                <input
+                                    type="text"
+                                    value={IDNarudzbenice}
+                                    disabled={true}
+                                />
+                            </div>
+                            <div className={styles.inputContainer}>
+                                <p>Sektor:</p>
+                                <input
+                                    type="text"
+                                    value={sektor}
+                                    onChange={(e) => {
+                                        setSektor(e.target.value);
+                                    }}
+                                />
+                            </div>
+                            <div className={styles.inputContainer}>
+                                <p>Datum:</p>
+                                <input
+                                    type="date"
+                                    value={formatDate(datum)}
+                                    onChange={(e) => {
+                                        setDatum(new Date(e.target.value));
+                                    }}
+                                />
+                            </div>
                         </div>
                     </div>
-                    <div className={styles.rightInputs}>
-                        <div className={styles.inputContainer}>
-                            <p>ID narudžbenice:</p>
+                    <div className={styles.statuses}>
+                        <div className={styles.status}>
+                            <p>Kreirana</p>
                             <input
-                                type="text"
-                                value={narudzbenicaID}
-                                onChange={(e) => {
-                                    if (
-                                        (!isNaN(+e.target.value) &&
-                                            +e.target.value > 0) ||
-                                        e.target.value === ""
-                                    ) {
-                                        setNarudzbenicaID(e.target.value);
-                                    }
+                                type="checkbox"
+                                checked={stanja.kreirana}
+                                disabled={true}
+                            />
+                        </div>
+                        <div className={styles.status}>
+                            <p>Potpisana</p>
+                            <input
+                                type="checkbox"
+                                checked={stanja.potpisana || stanja.poslata}
+                                disabled={["potpisana", "poslata"].includes(
+                                    stanje
+                                )}
+                                onClick={() => {
+                                    setStanja({
+                                        ...stanja,
+                                        potpisana: !stanja.potpisana,
+                                    });
                                 }}
                             />
                         </div>
-                        <div className={styles.inputContainer}>
-                            <p>Sektor:</p>
+                        <div className={styles.status}>
+                            <p>Poslata</p>
                             <input
-                                type="text"
-                                value={sektor}
-                                onChange={(e) => {
-                                    setSektor(e.target.value);
-                                }}
-                            />
-                        </div>
-                        <div className={styles.inputContainer}>
-                            <p>Datum:</p>
-                            <input
-                                type="date"
-                                value={datum}
-                                onChange={(e) => {
-                                    setDatum(e.target.value);
+                                type="checkbox"
+                                checked={stanja.poslata}
+                                disabled={["kreirana", "poslata"].includes(
+                                    stanje
+                                )}
+                                onClick={() => {
+                                    setStanja({
+                                        ...stanja,
+                                        poslata: !stanja.poslata,
+                                    });
                                 }}
                             />
                         </div>
@@ -405,8 +477,6 @@ export default function narudzbenicaIzmena({
                                     className={styles.selectStyleStavka}
                                     onChange={(e) => {
                                         const sifraArtikla = +e.target.value;
-
-                                        setSelectedArtikalID(sifraArtikla);
                                         setSelectedArtikal(
                                             artikli.find(
                                                 (artikal) =>
@@ -521,18 +591,10 @@ export default function narudzbenicaIzmena({
                     <div
                         className={styles.btn}
                         onClick={() => {
-                            saveNarudzbenica();
+                            updateNarudzbenica();
                         }}
                     >
                         Sačuvaj
-                    </div>
-                    <div
-                        className={styles.btn}
-                        onClick={() => {
-                            clearInputs();
-                        }}
-                    >
-                        Poništi
                     </div>
                 </div>
             </div>

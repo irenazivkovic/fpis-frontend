@@ -42,7 +42,7 @@ export default function NarudzbenicaPretraga() {
         getData(
             `http://localhost:4000/narudzbenica/${
                 params.imeZaposlenog.length === 0 ? " " : params.imeZaposlenog
-            }/${params.kreirana}/${params.poslata}/${params.potpisana}`,
+            }/${params.kreirana}/${params.potpisana}/${params.poslata}`,
             "array"
         ).then((result) => {
             setNarudzbenice(result);

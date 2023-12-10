@@ -88,6 +88,17 @@ interface QueryParametersDto {
     imeZaposlenog: string;
 }
 
+interface InitialStavkeState {
+    katalogID: number;
+    stavke: StavkaNarudzbeniceFullDto[];
+}
+
+interface Stanja {
+    kreirana: boolean;
+    potpisana: boolean;
+    poslata: boolean;
+}
+
 export {
     type MestoDto,
     type AdresaDto,
@@ -102,4 +113,6 @@ export {
     type StavkaNarudzbeniceDto,
     type NarudbenicaFullDto,
     type QueryParametersDto,
+    type InitialStavkeState,
+    type Stanja,
 };
