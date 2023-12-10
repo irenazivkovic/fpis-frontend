@@ -1,0 +1,520 @@
+.unos {
+    width: 100vw;
+    height: 100vh;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    background: rgba(0, 82, 255, 0.4);
+
+    border: 2px solid rgba(0, 0, 0, 0.411);
+    border-radius: 6px;
+}
+
+.formHeader {
+    width: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    background-color: rgb(65, 97, 255);
+    border-radius: 6px 6px 0px 0px;
+
+    p {
+        color: rgb(255, 255, 255, 1);
+        text-align: right;
+        font-family: "Roboto";
+        font-size: 20px;
+        font-style: normal;
+        font-weight: 400;
+
+        margin-top: 16px;
+        margin-bottom: 16px;
+
+        &:first-child {
+            margin-left: 12px;
+        }
+    }
+}
+
+.link {
+    margin-right: 24px;
+
+    color: rgb(255, 255, 255, 1);
+    text-align: right;
+    text-decoration: none;
+    font-family: "Roboto";
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 400;
+
+    &:hover {
+        cursor: pointer;
+        filter: brightness(0.3);
+    }
+
+    &:active {
+        filter: brightness(0.5);
+    }
+}
+
+.formBody {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px 28px;
+}
+
+.inputContainer {
+    width: 450px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-bottom: 12px;
+
+    p {
+        width: 180px;
+
+        margin-right: 20px;
+
+        color: rgb(255, 255, 255, 1);
+        text-align: right;
+        font-family: "Roboto";
+        font-size: 20px;
+        font-style: normal;
+        font-weight: 400;
+    }
+
+    input {
+        width: 280px;
+        height: 24px;
+
+        color: rgb(0, 0, 0);
+        text-align: left;
+        font-family: "Roboto";
+        font-size: 16px;
+        font-style: normal;
+        font-weight: 400;
+    }
+
+    textarea {
+        resize: none;
+
+        width: 280px;
+        height: 60px;
+
+        color: rgb(0, 0, 0);
+        text-align: left;
+        font-family: "Roboto";
+        font-size: 16px;
+        font-style: normal;
+        font-weight: 400;
+    }
+}
+
+.selectStyle {
+    width: 290px;
+    height: 24px;
+
+    color: rgb(0, 0, 0);
+    text-indent: 4px;
+    text-align: left;
+    font-family: "Roboto";
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+}
+
+.btn {
+    width: fit-content;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 12px 28px;
+
+    border-radius: 30px;
+    background-color: rgba(195, 245, 60, 1);
+
+    color: rgb(0, 0, 0, 1);
+    text-align: center;
+    text-decoration: none;
+    font-family: "Roboto";
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 500;
+
+    &:hover {
+        cursor: pointer;
+        background: linear-gradient(
+                0deg,
+                rgba(255, 255, 255, 0.2) 0%,
+                rgba(255, 255, 255, 0.2) 100%
+            ),
+            #c3f53c;
+        box-shadow: 0px 4px 4px 0px rgba(255, 255, 255, 0.1);
+    }
+
+    &:active {
+        background: linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.05) 0%,
+                rgba(0, 0, 0, 0.05) 100%
+            ),
+            #c3f53c;
+    }
+}
+
+.btnContainer {
+    width: 100%;
+
+    margin-top: 14px;
+    margin-bottom: 14px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+}
+
+.stavkeContainer {
+    padding: 12px;
+
+    border-radius: 15px;
+    border: 1px solid rgba(6, 4, 161, 0.489);
+
+    background-color: rgba(42, 95, 255, 0.5);
+}
+
+.stavkeInputs {
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+}
+
+.stavkeInputsLeft {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.stavkeHeader {
+    width: 100%;
+
+    display: flex;
+
+    p {
+        color: rgb(255, 255, 255, 1);
+        text-align: right;
+        font-family: "Roboto";
+        font-size: 20px;
+        font-style: normal;
+        font-weight: 400;
+
+        margin-top: 16px;
+        margin-bottom: 16px;
+    }
+}
+
+.btnStavka {
+    width: fit-content;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin: 16px auto 20px auto;
+    padding: 10px 22px;
+
+    border-radius: 30px;
+    background-color: rgba(195, 245, 60, 1);
+
+    color: rgb(0, 0, 0, 1);
+    text-align: center;
+    text-decoration: none;
+    font-family: "Roboto";
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 500;
+
+    &:hover {
+        cursor: pointer;
+        background: linear-gradient(
+                0deg,
+                rgba(255, 255, 255, 0.2) 0%,
+                rgba(255, 255, 255, 0.2) 100%
+            ),
+            #c3f53c;
+        box-shadow: 0px 4px 4px 0px rgba(255, 255, 255, 0.1);
+    }
+
+    &:active {
+        background: linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.05) 0%,
+                rgba(0, 0, 0, 0.05) 100%
+            ),
+            #c3f53c;
+    }
+}
+
+.inputContainerStavka {
+    width: 450px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-bottom: 12px;
+
+    p {
+        width: 180px;
+
+        margin-right: 20px;
+
+        color: rgb(255, 255, 255, 1);
+        text-align: right;
+        font-family: "Roboto";
+        font-size: 20px;
+        font-style: normal;
+        font-weight: 400;
+    }
+
+    input {
+        width: 500px;
+        height: 24px;
+
+        color: rgb(0, 0, 0);
+        text-align: left;
+        font-family: "Roboto";
+        font-size: 16px;
+        font-style: normal;
+        font-weight: 400;
+    }
+}
+
+.selectStyleStavka {
+    width: 500px;
+    height: 24px;
+
+    color: rgb(0, 0, 0);
+    text-indent: 4px;
+    text-align: left;
+    font-family: "Roboto";
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+}
+
+.btnStavka {
+    width: fit-content;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin: 16px auto 20px auto;
+    padding: 6px 10px;
+
+    border-radius: 30px;
+    background-color: rgba(195, 245, 60, 1);
+
+    color: rgb(0, 0, 0, 1);
+    text-align: center;
+    text-decoration: none;
+    font-family: "Roboto";
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 500;
+
+    &:hover {
+        cursor: pointer;
+        background: linear-gradient(
+                0deg,
+                rgba(255, 255, 255, 0.2) 0%,
+                rgba(255, 255, 255, 0.2) 100%
+            ),
+            #c3f53c;
+        box-shadow: 0px 4px 4px 0px rgba(255, 255, 255, 0.1);
+    }
+
+    &:active {
+        background: linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.05) 0%,
+                rgba(0, 0, 0, 0.05) 100%
+            ),
+            #c3f53c;
+    }
+}
+
+.stavkeDisplayHeader {
+    table {
+        background-color: rgb(241, 241, 241);
+
+        border: 2px solid rgb(71, 71, 71);
+        border-bottom: none;
+        border-radius: 12px 12px 0px 0px;
+
+        thead {
+            tr {
+                height: 28px;
+
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+
+                td {
+                    margin-right: 10px;
+
+                    color: rgb(0, 0, 0, 1);
+                    text-align: left;
+                    text-decoration: none;
+                    font-family: "Roboto";
+                    font-size: 16px;
+                    font-style: normal;
+                    font-weight: 500;
+
+                    &:first-child {
+                        margin-left: 6px;
+                    }
+
+                    &:last-child {
+                        margin-right: 0px;
+                    }
+                }
+            }
+        }
+    }
+}
+
+.stavkeDisplayBody {
+    height: 90px;
+
+    overflow: auto;
+
+    background-color: rgb(241, 241, 241);
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+
+    scrollbar-width: none; /* Firefox */
+
+    border: 2px solid rgb(71, 71, 71);
+
+    border-radius: 0px 0px 12px 12px;
+
+    table {
+        max-height: 180px;
+
+        tbody {
+            tr {
+                width: 100%;
+
+                min-height: 42px;
+                height: fit-content;
+
+                margin: 5px 0px 5px 0px;
+
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+
+                td {
+                    word-wrap: break-word;
+
+                    color: rgb(0, 0, 0, 1);
+                    text-align: left;
+                    text-decoration: none;
+                    font-family: "Roboto";
+                    font-size: 16px;
+                    font-style: normal;
+                    font-weight: 500;
+
+                    &:first-child {
+                        margin-left: 6px;
+
+                        text-indent: 2px;
+                    }
+
+                    &:nth-child(4) {
+                        max-width: 250px;
+                    }
+
+                    &:last-child {
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-evenly;
+
+                        margin-right: 20px;
+                    }
+                }
+            }
+        }
+    }
+}
+
+.editFormContainer {
+    position: absolute;
+
+    width: 100vw;
+    height: 100vh;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background-color: rgba(0, 0, 0, 0.45);
+}
+
+.editFormHeader {
+    width: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    background-color: rgb(65, 97, 255);
+    border-radius: 6px 6px 0px 0px;
+
+    p {
+        color: rgb(255, 255, 255, 1);
+        text-align: right;
+        font-family: "Roboto";
+        font-size: 20px;
+        font-style: normal;
+        font-weight: 400;
+
+        margin: 12px 24px 12px 0px;
+
+        &:hover {
+            cursor: pointer;
+            filter: brightness(0.3);
+        }
+
+        &:active {
+            filter: brightness(0.5);
+        }
+    }
+}
+
+.stavkaFields {
+    padding: 18px;
+
+    background: rgb(0, 81, 255);
+    border-radius: 0px 0px 6px 6px;
+}
